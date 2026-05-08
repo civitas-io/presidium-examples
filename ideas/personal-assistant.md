@@ -1,76 +1,83 @@
-# Idea: Personal AI Assistant
+# Idea: Personal AI Assistant (Jarvis)
 
 **Domain:** Consumer  
 **Complexity:** Medium–High  
-**Status:** Backlog — pending design discussion
+**Status:** Backlog — pending scope decision
 
 ---
 
 ## The Concept
 
-The enterprise examples show Presidium governing agents that affect organizations. This example shows the same primitives governing an agent that affects *you* — your calendar, your email, your files, your home.
+Decision fatigue is the hidden tax on modern life. Hundreds of micro-decisions daily — which emails need a reply, which meeting invite to accept, which bill is due, whether to reschedule that dentist appointment — each small, but collectively exhausting. Most of them don't need you. They just need judgment.
 
-This is the "regular folks" version. The governance story is identical; the stakes are personal rather than organizational.
-
----
-
-## The Problem
-
-"The assistant reorganized my email archive. I can't find anything. It also accepted a meeting invite I would have declined."
-
-Personal AI assistants fail the same way enterprise agents do: no declared intent, no approval gates on irreversible actions, no audit of what happened and why. The difference is that the person who gets hurt is the user, not a company.
+Jarvis handles the 80% autonomously. It surfaces the 20% that actually need you — prepared, contextualized, and with a draft action ready to approve or redirect.
 
 ---
 
-## What Makes This Different from Enterprise Examples
+## Life Domains Covered
 
-- No external IdP, no OAuth enterprise flows — the user *is* the authority
-- Consent model is personal and conversational, not policy-file-based
-- Reversibility matters more than in enterprise (you can reopen a ticket; you can't unsend an email)
-- Trust feedback is immediate and direct — user says "that was wrong," agent records it
-
----
-
-## Agent Capabilities (Governed)
-
-| Capability | Default | Approval required |
+| Domain | What Jarvis does autonomously | What it surfaces to you |
 |---|---|---|
-| Read email / calendar | ALLOW | — |
-| Draft email | ALLOW | — |
-| Send email | REQUIRE_APPROVAL | Always |
-| Accept / decline calendar invites | REQUIRE_APPROVAL | Always |
-| Create calendar events | ALLOW for personal, REQUIRE_APPROVAL for inviting others |
-| Move / label email | ALLOW | — |
-| Delete email | REQUIRE_APPROVAL | Always |
-| File access (read) | ALLOW within declared scope | — |
-| File modification / deletion | REQUIRE_APPROVAL | Always |
-| Home automation (lights, locks) | Configurable per device | Locks: always |
+| **Email** | Labels, archives, flags action items, drafts replies | Replies ready to send, anything requiring a decision |
+| **Calendar** | Detects conflicts, preps meeting briefs, drafts declines | Invite acceptance, schedule changes that affect others |
+| **Messages** | Drafts replies for low-stakes threads | Anything emotionally significant, anything requiring a commitment |
+| **Bills & Finance** | Tracks due dates, flags anomalies, reconciles against budget | Payments above threshold, unusual charges, budget overruns |
+| **Health** | Tracks appointments, preps reminders, flags gaps in commitments | Rescheduling, anything requiring a decision about your care |
+| **Social** | Surfaces birthdays, anniversaries, follow-ups you've let drift | Draft messages, nothing sent without review |
 
 ---
 
-## Governance Story
+## The Governance Story
 
-| Primitive | How it appears |
+The failure modes for a personal assistant are not corporate failures — they're personal ones. The assistant sent an email you wouldn't have sent. It accepted a commitment you would have declined. It deleted something you needed. These are violations of autonomy, not policy.
+
+Presidium's governance primitives map to this naturally:
+
+| Primitive | How it appears for Jarvis |
 |---|---|
-| **Personal approval gates** | Send email, accept invite, delete anything → always asks first. Not optional. |
-| **Intent declaration** | "I'm going to process this week's unread email" — if assistant pivots to a different task mid-session, user is notified |
-| **Reversibility-first** | Agent prefers reversible actions (archive vs delete, draft vs send) unless user explicitly overrides |
-| **Personal audit trail** | Full log of what the agent did, what it accessed, what it sent — user-owned, exportable |
-| **Trust feedback** | User corrects the agent → trust score for that action class decays → agent asks more often in that domain |
-| **Context budget** | Long-running sessions (e.g. processing a full inbox) stay within budget; agent summarizes and checkpoints rather than accumulating |
+| **Irreversibility gate** | Send email, accept invite, pay bill, delete anything → always requires approval. Non-negotiable. |
+| **Reversibility-first** | Agent prefers reversible actions: archive over delete, draft over send, suggest over book |
+| **Intent declaration** | "Processing today's inbox" — if Jarvis drifts to touching calendar or finances mid-session without being asked, you're notified |
+| **Approval with context** | Every approval request includes: what the action is, why Jarvis thinks it's right, what happens if you decline |
+| **Trust feedback** | "Don't do that" → trust decays for that action class in that context → Jarvis asks more often there. Corrections persist. |
+| **Personal audit trail** | Full log of every action, every draft, every decision Jarvis made on your behalf — yours, local, exportable |
+| **Context budget** | Long inbox sessions don't spiral into 100k-token context swamps; Jarvis checkpoints and summarizes rather than accumulating everything |
 
 ---
 
-## Why It Matters for Presidium
+## What Makes This Different from Existing Assistants
 
-Enterprise buyers want to see governance at the enterprise level. But *individuals* making decisions about whether to trust an AI assistant are the same people who make purchasing decisions at work. A personal assistant that demonstrably respects boundaries — and shows you exactly what it did and why — builds the trust that enterprise sales depend on.
+Siri, Google Assistant, Alexa: reactive. They answer questions and execute explicit commands.
 
-It's also the clearest possible demonstration that the governance model is general, not just for compliance teams.
+Jarvis: proactive, but governed. It acts on your behalf without being asked — and the governance layer is what makes that safe to do. You don't have to trust that Jarvis will make the right call every time. You trust that it will never do something irreversible without checking, and that it will show you exactly what it did.
+
+The transparency is the product. The audit trail isn't a compliance feature — it's the thing that lets you delegate confidently.
 
 ---
 
-## Design Questions (Open)
+## Why It's the Right Consumer Example
 
-- Should this be framed around a specific integration (Gmail + Google Calendar + Home Assistant)?
-- Is this the "OpenClaw/Hermes" concept from design discussions? Needs clarification before scoping.
-- Homelab integration (Lumi, vigil) — is this the internal dogfood version?
+Enterprise buyers are also humans with decision fatigue. Showing Presidium's governance model applied to something as personal and relatable as "I got 200 emails today and Jarvis prepared 40 draft replies for me to approve" makes the value proposition immediate and human-scale.
+
+It's also the bridge between the enterprise demos and everyday life: the same trust model, the same approval gates, the same audit trail — but for your inbox, not your SOC.
+
+---
+
+## Connection to Existing Work
+
+This may be the evolved form of the M1.8 hero demo (personal AI assistant with homelab integrations). If so, Jarvis is the governed version of that — same integrations, Presidium governance layer added.
+
+Integrations to scope:
+- Gmail + Google Calendar (MCP, already explored in M3)
+- iMessage / WhatsApp (platform-dependent)
+- Banking / Plaid (financial feeds)
+- Apple Health / Garmin (health data)
+- Home automation (Home Assistant / homelab)
+
+---
+
+## Open Questions
+
+- Does this become a standalone product (consumer-facing) or a showcase example only?
+- Local-first vs cloud — personal data sensitivity argues for local-first deployment
+- Should the approval UX be a mobile app, a Slack bot, or something else?
